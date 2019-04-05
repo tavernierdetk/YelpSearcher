@@ -1,0 +1,89 @@
+<script src="https://www.gstatic.com/firebasejs/5.9.2/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyBo39ycSKLP-_RI0n_eiPSSx2UCRiQU4_4",
+    authDomain: "yelpsearcher.firebaseapp.com",
+    databaseURL: "https://yelpsearcher.firebaseio.com",
+    projectId: "yelpsearcher",
+    storageBucket: "yelpsearcher.appspot.com",
+    messagingSenderId: "111554803751"
+  };
+  firebase.initializeApp(config);
+
+
+
+
+
+
+
+var arr = [];
+
+function addToDB() {
+    var JSONObj = {};
+    JSONObj["name"] = document.getElementById('creatorName').innerHTML;
+    JSONObj["intineraryName"] = document.getElementById('itinerary').innerHTML;
+
+    for (i in arr) {
+        JSONObj["item" + i ] = arr[i];
+    }
+
+
+
+   firebase.database().ref().push(JSONObj);
+}
+
+
+function addToFav (name,url) {
+    var obj = { 
+        "name" : name,
+        "url" : url
+    }
+    arr.push(obj);
+    document.getElementById('stringHolder').value = JSON.stringify(arr);
+
+}
+
+
+</script>
+
+
+
+
+<form method="POST">
+
+<input id="inputBox" name="inputBox" />
+<button type="submit">Search</button>
+
+<input type="hidden" value="" id="stringHolder" name="stringHolder" />
+
+</form>
+
+    <h1><span id="itinerary" contenteditable="true">Your itinerary</span></h1>
+
+<button onclick="addToDB();">Add favourites to DB</button>
+
+<select id="users">
+ 
+
+</select>
+    <h4>By: <span contenteditable="true" id="creatorName">Your name here</span></h4>
+<h4>Number of results: {{count}}</h4>
+<br>
+
+{{#each items}}
+
+<div class="container well" style='bgcolor:grey'>
+<p>
+Name: <a href="{{url}}">{{name}}</a>
+</p>
+<a href="{{url}}"></a>
+<img height="100px" width="100px" src="{{image_url}}">
+Phone number: {{phone}}
+<button onclick="addToFav('{{name}}','{{url}}');" >Add to favourite</button>
+
+</div>
+<br>
+
+{{/each}}
+
