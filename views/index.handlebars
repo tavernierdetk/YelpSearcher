@@ -1,4 +1,5 @@
 <script src="https://www.gstatic.com/firebasejs/5.9.2/firebase.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
   // Initialize Firebase
   var config = {
@@ -11,28 +12,143 @@
   };
   firebase.initializeApp(config);
 
+var dbcontent = [];
 
 
+function addToDB(name,url) {
 
-
-
-
-var arr = [];
-
-function addToDB() {
-    var JSONObj = {};
-    JSONObj["name"] = document.getElementById('creatorName').innerHTML;
-    JSONObj["intineraryName"] = document.getElementById('itinerary').innerHTML;
-
-    for (i in arr) {
-        JSONObj["item" + i ] = arr[i];
+    if(document.getElementById('users').value == 'newUser') {
+        alert('Choose existing user or create one');
+        return;
     }
 
 
+    var loc= firebase.database().ref();
 
-   firebase.database().ref().push(JSONObj);
+    firebase.database().ref().once('value',function(content) {
+        dbcontent = [];
+        var proNumbers = [];
+        var objToAdd = {};
+            content.forEach(function(loc){
+            dbcontent.push([loc.val(),loc.key]);
+            });
+            for (i in dbcontent) {
+                if(dbcontent[i][0].name==document.getElementById('users').value) {
+                    for (var prop in dbcontent[i][0]) {
+                        if(prop!="name" && prop!="intineraryName") {
+                            proNumbers.push(parseInt(prop.slice(4)));
+                        }
+                    }
+            
+
+                 firebase.database().ref(dbcontent[i][1]+'/item'+proNumbers.length).set({ 
+                        "url"  : url,
+                        "name" : name
+                    });
+                }
+            }
+
+
+
+
+        
+    });
 }
 
+function createUser () {
+    var loc= firebase.database().ref();
+
+    firebase.database().ref().once('value',function(content) {
+        dbcontent = [];
+
+        content.forEach(function(loc){
+        dbcontent.push(loc.val());
+        });
+        for (i in dbcontent) {
+            if (dbcontent[i].name == document.getElementById('creatorName').innerHTML) {
+                alert('Username already in use');
+                return;
+            } 
+        }
+        var JSONObj = {};
+        JSONObj["name"] = document.getElementById('creatorName').innerHTML;
+        JSONObj["intineraryName"] = document.getElementById('itinerary').innerHTML;
+
+        firebase.database().ref().push(JSONObj);
+        updateSelector(dbcontent,document.getElementById('users').value)
+
+
+
+    });
+}
+
+
+function readData (){  
+
+    var loc=firebase.database().ref();
+
+    firebase.database().ref().once('value',function(content) {
+        dbcontent = [];
+            content.forEach(function(loc){
+            dbcontent.push(loc.val());
+            });
+            updateSelector(dbcontent,document.getElementById('users').value);
+        }
+    );
+}
+
+function updateSelector(arr,selected){
+
+    $('#users').empty();
+    var newOption;
+        newOption=document.createElement("option");
+        newOption.text='New user';
+        newOption.value ='newUser';
+        document.getElementById('users').add(newOption); 
+
+    for (i in arr){
+        newOption=document.createElement("option");
+        newOption.text=arr[i].name;
+        newOption.value =arr[i].name;
+        if(selected == arr[i].name) {
+            newOption.selected=true;
+        }
+        document.getElementById('users').add(newOption);  
+    }
+    updateSidebar();
+}    
+
+function updateSidebar() {
+    var loc=firebase.database().ref();
+
+    firebase.database().ref().once('value',function(content) {
+        dbcontent = [];
+            content.forEach(function(loc){
+            dbcontent.push(loc.val());
+            });
+            for (i in dbcontent) {
+
+                if(dbcontent[i].name==document.getElementById('users').value) {
+
+                    var outputStr = '';
+                    for(var prop in dbcontent[i]) {
+                        if(prop!="name" && prop!="intineraryName") {
+
+                            outputStr = outputStr + `
+                            <div>
+                            <a href src='${dbcontent[i][prop].url}' > ${dbcontent[i][prop].name} </a>   
+                            <br>
+                            </div>
+                            `
+                        }
+                    }
+                    document.getElementById('sidebar').innerHTML = outputStr;
+                }
+            }
+        }
+    );
+
+}        
 
 function addToFav (name,url) {
     var obj = { 
@@ -41,10 +157,10 @@ function addToFav (name,url) {
     }
     arr.push(obj);
     document.getElementById('stringHolder').value = JSON.stringify(arr);
-
+    readData();
 }
 
-
+readData();
 </script>
 
 
@@ -53,6 +169,7 @@ function addToFav (name,url) {
 <form method="POST">
 
 <input id="inputBox" name="inputBox" />
+<input id="inputBoxLocation" name="inputBoxLocation" />
 <button type="submit">Search</button>
 
 <input type="hidden" value="" id="stringHolder" name="stringHolder" />
@@ -61,9 +178,11 @@ function addToFav (name,url) {
 
     <h1><span id="itinerary" contenteditable="true">Your itinerary</span></h1>
 
-<button onclick="addToDB();">Add favourites to DB</button>
+<button onclick="createUser();">Create User</button>
 
-<select id="users">
+
+
+<select id="users" onchange="readData();">
  
 
 </select>
@@ -80,10 +199,18 @@ Name: <a href="{{url}}">{{name}}</a>
 <a href="{{url}}"></a>
 <img height="100px" width="100px" src="{{image_url}}">
 Phone number: {{phone}}
-<button onclick="addToFav('{{name}}','{{url}}');" >Add to favourite</button>
+<button onclick="addToDB('{{name}}','{{url}}');" >Add to favourite</button>
 
 </div>
+
+
+
+
+
 <br>
 
 {{/each}}
+<div id='sidebar'>
 
+
+</div>
