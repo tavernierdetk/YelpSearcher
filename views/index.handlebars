@@ -198,21 +198,59 @@ function addToFav (name,url) {
 readData();
 </script>
 
+<style>
+#header{
+    text-align: center;
+    padding-top: 40px;
+    width: 100%;
+    background-color: #54a0ff;
+    color: white;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+}
+.favorite_button{
+    background-color: white !important;
+    color: #54a0ff;
+}
+button{
+    background-color: white;
+    border: 1px solid #54a0ff;
+}
+button:hover{
+    background-color: #54a0ff !important;
+    color: white;
+}
+.results{
+    box-sizing: border-box;
+    float: left;
+    text-align: center;
+    width: calc(25% - 40px);
+    margin: 20px;
+    border: 1px solid rgb(206, 206, 206);
+    padding: 20px;
+    background: #f7f7f7;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    border-radius: 8px;
+}
+.results:hover {
+  box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+}
+.title{
+    font-size: 20px;
+}
+</style>
 
 
 
+<div id="header">
 <form method="POST">
-
+    <h1><span id="itinerary" contenteditable="true">Your itinerary</span></h1>
 <input id="inputBox" name="inputBox" />
 <input id="inputBoxLocation" name="inputBoxLocation" />
 <button type="submit">Search</button>
-
 <input type="hidden" value="" id="stringHolder" name="stringHolder" />
 
 </form>
-
-    <h1><span id="itinerary" contenteditable="true">Your itinerary</span></h1>
-
 <button onclick="createUser();">Create User</button>
 
 
@@ -224,28 +262,25 @@ readData();
     <h4>By: <span contenteditable="true" id="creatorName">Your name here</span></h4>
 <h4>Number of results: {{count}}</h4>
 <br>
-
-{{#each items}}
-
-<div class="container well" style='bgcolor:grey'>
-<p>
-Name: <a href="{{url}}">{{name}}</a>
-</p>
-<a href="{{url}}"></a>
-<img height="100px" width="100px" src="{{image_url}}">
-Phone number: {{phone}}
-<button onclick="addToDB('{{name}}','{{url}}');" >Add to favourite</button>
-
 </div>
-
-
-
-
 
 <br>
 
+
+{{#each items}}
+<div class="results">
+<div><a class="title" href="{{url}}">{{name}}</a></div>
+<a href="{{url}}"></a>
+<img height="150px" width="150px" src="{{image_url}}">
+<p><i class="fas fa-phone"></i> {{phone}}</p>
+<button class='favorite_button' onclick="addToDB('{{name}}','{{url}}');" ><i class="fas fa-heart"></i> Favorite</button>
+</div>
 {{/each}}
+
+
+
 <div id='sidebar'>
 
 
 </div>
+

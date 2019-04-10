@@ -34,7 +34,7 @@ app.set('view engine','handlebars');
 app.use(bodyParser.urlencoded({extended : false}));
 
 
-const PORT = process.env.PORT || 3000; 
+const PORT = process.env.PORT || 35000; 
 app.listen(PORT, console.log(`server running on port: ${PORT}`));
 
 //default path when accessing the site
