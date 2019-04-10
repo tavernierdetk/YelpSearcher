@@ -35,7 +35,7 @@ app.use(bodyParser.urlencoded({extended : false}));
 
 
 const PORT = process.env.PORT || 3000; 
-app.listen(PORT, console.log('server running'));
+app.listen(PORT, console.log(`server running on port: ${PORT}`));
 
 //default path when accessing the site
 app.get('/', (req,res) =>  res.render('index'));
@@ -49,12 +49,12 @@ const client = yelp.client(API_KEY);
 // pick the fields you want to pull from your data
 const DESIRED_FIELDS = ['name', 'url', 'phone', 'location.city', "image_url"];
 
-let { inputBox } = req.body;
+let { inputBox , inputBoxLocation } = req.body;
 
     client.search({
       term: inputBox,
-      location: 'Montreal, QC',
-      limit : 5
+      location: inputBoxLocation,
+      limit : 20
     })
     .then(response => {
       const items = response.jsonBody.businesses.map(element => _.pick(element, DESIRED_FIELDS));
