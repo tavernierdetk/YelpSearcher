@@ -15,32 +15,7 @@
 
 var dbcontent = [];
 
-function removeFromFavorites (user,url) {
-    
-    firebase.database().ref().once('value',function(content) {
-            dbcontent = [];
-                content.forEach(function(loc){
-                dbcontent.push(loc.val());
-                });
-                for (i in dbcontent) {
-                    if(dbcontent[i].name==user) {
-                        for (var prop in dbcontent[i]) {
-                            if(prop!="name" && prop!="intineraryName") {
-                                if (url == dbcontent[i][prop].url){
-                                    console.log(dbcontent[i][prop]);
-                                    firebase.database().ref(dbcontent[i][prop])).remove();
 
-                                    alert('Location removed from favourites');
-                                    return;
-                                }
-
-                            }
-                        }
-                    }
-                }              
-        });
-
-}
 
 function addToDB(name,url) {
 
@@ -172,7 +147,6 @@ function updateSidebar() {
                             <div>
                             <a href='${dbcontent[i][prop].url}' > ${dbcontent[i][prop].name} </a>   
                             <br>
-                            <button onclick='removeFromFavorites("${document.getElementById('users').value}","${dbcontent[i][prop].url}");'>Remove</button>
                             </div>
                             `
                         }
