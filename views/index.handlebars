@@ -1,5 +1,18 @@
 <script src="https://www.gstatic.com/firebasejs/5.9.2/firebase.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+
+<script>
+function openNav() {
+  document.getElementById("sidebar").style.width = "300px";
+  document.getElementById("main").style.marginRight = "300px";
+}
+
+function closeNav() {
+  document.getElementById("sidebar").style.width = "0";
+  document.getElementById("main").style.marginRight= "0";
+}
+</script>
 <script>
 
   // Initialize Firebase
@@ -64,7 +77,7 @@ function addToDB(name,url) {
     readData();
 }
 
-function createUser () {
+function createUser() {
     var loc= firebase.database().ref();
 
     firebase.database().ref().once('value',function(content) {
@@ -74,17 +87,26 @@ function createUser () {
         dbcontent.push(loc.val());
         });
         for (i in dbcontent) {
-            if (dbcontent[i].name == document.getElementById('creatorName').innerHTML) {
+            if (dbcontent[i].name == document.getElementById('creatorName').value) {
                 alert('Username already in use');
                 return;
             } 
         }
         var JSONObj = {};
-        JSONObj["name"] = document.getElementById('creatorName').innerHTML;
-        JSONObj["intineraryName"] = document.getElementById('itinerary').innerHTML;
+        JSONObj["name"] = document.getElementById('creatorName').value;
 
-        firebase.database().ref().push(JSONObj);
-        updateSelector(dbcontent,document.getElementById('users').value)
+
+        firebase.database().ref().push(JSONObj, function(error) {
+  if (error) {
+    alert("Data could not be saved." + error);
+  } else {
+    alert("User created successfully.");
+
+  }
+});
+location.reload();
+
+ 
 
 
 
@@ -111,7 +133,7 @@ function updateSelector(arr,selected){
     $('#users').empty();
     var newOption;
         newOption=document.createElement("option");
-        newOption.text='New user';
+        newOption.text='Select User';
         newOption.value ='newUser';
         document.getElementById('users').add(newOption); 
 
@@ -145,12 +167,14 @@ function updateSidebar() {
 
                             outputStr = outputStr + `
                             <div>
-                            <a href='${dbcontent[i][prop].url}' > ${dbcontent[i][prop].name} </a>   
+                            <h3><a href='${dbcontent[i][prop].url}' > ${dbcontent[i][prop].name} </a> </h3>  
                             <br>
                             </div>
                             `
                         }
                     }
+                    outputStr = `<h2 style="text-align:center">Your favourites</h2><br><br>
+                      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>`+ outputStr;
                     document.getElementById('sidebar').innerHTML = outputStr;
                 }
             }
@@ -212,49 +236,112 @@ button:hover{
 .title{
     font-size: 20px;
 }
+
+
+#intructions{
+    padding: 20px;
+    background-color: #1dd1a1;
+}
+/* The sidebar menu */
+.sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  background-color: #85ecd1;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  -webkit-box-shadow: -5px 0 5px -2px #888;
+          box-shadow: -5px 0 5px -2px #888;
+}
+
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+
+.sidenav .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+#main {
+  transition: margin-left .5s;
+  padding: 16px;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
 </style>
+<div id="main">
 
-
+<div id = 'intructions'>
+<p><strong>Instructions: </strong>Search for any type of business e.g. bar, italian restaurant, etc... in any location to see the top twenty results below. Add yourself as a user by typing your username in the user input box below. See your own and other users' favorite locations by selecting their username from the dropdown menu and clicking on "Show my favourites"</p>
+</div>
 
 <div id="header">
 <form method="POST">
-    <h1><span id="itinerary" contenteditable="true">Your itinerary</span></h1>
-<input id="inputBox" name="inputBox" />
-<input id="inputBoxLocation" name="inputBoxLocation" />
+    <h2>Yelp Searcher</h2>
+<br>
+<input id="inputBox" name="inputBox" placeholder="Type of business" />
+<input id="inputBoxLocation" name="inputBoxLocation" placeholder="City" />
 <button type="submit">Search</button>
 <input type="hidden" value="" id="stringHolder" name="stringHolder" />
 
 </form>
-<button onclick="createUser();">Create User</button>
 
 
 
+
+<br>
+    <input id="creatorName" placeholder="Your Name"/>
+    <button onclick="createUser()">Create User</button><br>
 <select id="users" onchange="readData();">
  
 
-</select>
-    <h4>By: <span contenteditable="true" id="creatorName">Your name here</span></h4>
-<h4>Number of results: {{count}}</h4>
+</select> <br>
+<br>
+  <span style="font-size:30px;cursor:pointer" onclick="openNav()"> Show favourites</span>
+
 <br>
 </div>
 
 <br>
 
 
+
+
+
 {{#each items}}
 <div class="results">
-<div><a class="title" href="{{url}}">{{name}}</a></div>
-<a href="{{url}}"></a>
-<img height="150px" width="150px" src="{{image_url}}">
-<p><i class="fas fa-phone"></i> {{phone}}</p>
+<div><a class="title" href="{{url}}" target="_blank">{{name}} </a></div>
+<a href="{{url}}" target="_blank"><img height="150px" width="150px" src="{{image_url}}"></a>
+<p><i class="fas fa-phone"></i><a href="tel:'{{phone}}'">{{phone}}</a> </p>
 <button class='favorite_button' onclick="addToDB('{{name}}','{{url}}');" ><i class="fas fa-heart"></i> Favorite</button>
 </div>
 {{/each}}
 
 
 
-<div id='sidebar'>
+<div id='sidebar' class="sidenav">
 
 
+</div>
 </div>
 
